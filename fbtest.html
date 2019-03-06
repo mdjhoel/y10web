@@ -77,7 +77,7 @@
                 console.log(data[u]);
                 for (var t in data[u]) {
                     console.log(data[u][t].tweet);
-                    mylist = mylist + "<li>" + data[u][t].tweet + "</li>";
+                    mylist = mylist + "<li>" + data[u][t].tweet + " (" + data.users[u].email + ")</li>";
                 } 
             }
             mylist = mylist + "</ul>";
