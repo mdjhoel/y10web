@@ -73,11 +73,11 @@
         function updatetweets(data) {
             console.log(data); 
             var mylist = "<ul>";
-            for (var u in data) {
+            for (var u in data.tweets) {
                 console.log(data[u]);
-                for (var t in data[u]) {
-                    console.log(data[u][t].tweet);
-                    mylist = mylist + "<li>" + data[u][t].tweet + " (" + data.users[u].email + ")</li>";
+                for (var t in data.tweets[u]) {
+                    console.log(data.tweets[u][t].tweet);
+                    mylist = mylist + "<li>" + data.tweets.[u][t].tweet + " (" + data.users[u].email + ")</li>";
                 } 
             }
             mylist = mylist + "</ul>";
@@ -95,7 +95,7 @@
             twitdoc.value = "";
             console.log("tweet written")
             
-            firebase.database().ref('/tweets').once('value').then(function(snapshot) {
+            firebase.database().ref('/').once('value').then(function(snapshot) {
                     var data = (snapshot.val());
                     if (data == null) {
                       console.log("No data found at /tweets");  
