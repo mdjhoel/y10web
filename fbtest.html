@@ -95,7 +95,7 @@
             twitdoc.value = "";
             console.log("tweet written")
             
-            firebase.database().ref('/').once('value').then(function(snapshot) {
+            firebase.database().ref().once('value').then(function(snapshot) {
                     var data = (snapshot.val());
                     if (data == null) {
                       console.log("No data found at /tweets");  
