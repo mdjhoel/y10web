@@ -1,0 +1,21 @@
+{
+  "rules": {
+    "tweets": {
+      ".read": true,
+      "$uid": {
+        ".write": "$uid === auth.uid",
+        "$timestamp": {
+          	"tweet": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 140"
+            }
+        }
+      }
+    },
+    "users": {
+      ".read": true,
+      "$uid": {
+        ".write": "$uid === auth.uid"
+      }
+    }
+  }
+}
