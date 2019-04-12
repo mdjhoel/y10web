@@ -35,7 +35,8 @@
                 email = user.email;
                     
                 // write user data to users
-                writeUserData(userId, name, email, imageUrl);
+                //writeUserData(userId, name, email, imageUrl);
+                // moved to tweet function
                 
                 // write data to document
                 mydiv = document.getElementById("mydata");
@@ -85,10 +86,14 @@
         
         // write user data
         function writeUserData(userId, name, email, imageUrl) {
-            firebase.database().ref('users/' + userId).set({
-                username: name,
-                email: email,
-                profile_picture : imageUrl
+            firebase.database().ref('users/' + userId).once('value',    function(snapshot) {
+                 if (!snapshot.exists()) {
+                    firebase.database().ref('users/' + userId).set({
+                        username: name,
+                        email: email,
+                        profile_picture : imageUrl
+                    }); 
+                 }                                      
             });
         }
         
@@ -136,6 +141,7 @@
             var js_time = Date.now();
             var tweetid = firebase.database().ref('tweets/' + userId + "/").push({tweet: nameValue, time: js_time, img: imgValue});
             twitdoc.value = "";
+            writeUserData(userId, name, email, imageUrl);
             console.log("tweet written")
             
             firebase.database().ref('/tweets').once('value').then(function(snapshot) {
