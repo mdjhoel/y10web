@@ -186,8 +186,23 @@
                         email: email,
                         profile_picture : imageUrl
                     }); 
-                 }                                      
+                 }                            
             });
+        }
+        
+        function likeMe(uid,uk,num) {
+            firebase.database().ref('likes/' + uid + "/" + uk + "/" + userId).once('value', function(snapshot) {
+                var butdiv = document.getElementById("likeme" + num); 
+                if (snapshot.exists()) {
+                    var numlikes = Object.keys(snapshot.val()).length;
+                    butdiv.innerHTML = numlikes;
+                    return;
+                 } else {
+                     var js_time = Date.now();
+                     firebase.database().ref('likes/' + uid + "/" + uk + "/" + userId).push({"time": js_time});  
+                     butdiv.innerHTML = 1;
+                 } 
+            });            
         }
         
         function updatetweets2() {
@@ -197,11 +212,14 @@
             query.once('value', function(snapshot) {
                 // grab all users
                 const userquery = firebase.database().ref('/users')
-                userquery.once('value', function(usersnap) {            
-                    
+                userquery.once('value', function(usersnap) { 
                     // put user data in a variable for use later
                     var users = usersnap.val(); 
-                    
+                    // grab all likes
+                    firebase.database().ref('likes/').once('value', function(likeshot) {
+                        var likesObj = likeshot.val();
+                        var numlikes = 0;
+
                     // create empty array to place new combined object array, that will be sorted
                     var children = [];
                     //var mybio = "";
@@ -209,18 +227,29 @@
                     // loop through all uids for tweets
                     snapshot.forEach(function(child) {
                         var uid_valarray = Object.values(child.val());
+                        var keys = Object.keys(child.val());
                         // loop through unique ids for users for tweets
                         for (record = 0; record<uid_valarray.length; record++) {  
-                            
+                            var numlikes = 0;
                             var user = users[child.key]; // get correct user info from users object
+                              
+                            // find number of likes for current tweet
+                            if (likesObj != null) {
+                                if (likesObj[child.key] != undefined) {
+                                    if (likesObj[child.key][keys[record]] != undefined) {
+                                        numlikes = Object.keys(likesObj[child.key][keys[record]]).length;
+                                        console.log(numlikes);
+                                    }
+                                }
+                            }
+                                
                             // push new object to new array 'children'
                             //if (child.key == userId) { mybio = user.bio; }
-                            children.push({ "uid": child.key, "username": user.username, "email": user.email, "profile_picture": user.profile_picture, "time": uid_valarray[record].time, "tweet": uid_valarray[record].tweet, "img": uid_valarray[record].img}); 
+                            children.push({ "uid": child.key, "uk": keys[record], "username": user.username, "email": user.email, "profile_picture": user.profile_picture, "time": uid_valarray[record].time, "tweet": uid_valarray[record].tweet, "img": uid_valarray[record].img, "likes": numlikes}); 
                         }
                     });
                     // sort the data based on property and asc or desc
                     var data = children.sort(compareValues('tweet','desc'));
-                    
                     
                     // build the table
                     var mytab = "<table>";
@@ -233,13 +262,19 @@
                             mytab = mytab + "<td>" + data[i].email + "</td>";
                             mytab = mytab + "<td>" + data[i].tweet + "</td>";
                             mytab = mytab + "<td>" + time + "<br><img src='" + data[i].img + "' class='avatar'></td>";
+                            
+                            mytab = mytab + "<td><button id='likeme" + i + "'  onclick=likeMe('" + data[i].uid + "','" + data[i].uk + "'," + i + ")>" + data[i].likes + "</button></td>";
+                            
                         } else {
                             mytab = mytab + "<td><img src='" + data[i].profile_picture + "' class='avatar'></td>";
                             mytab = mytab + "<td>" + data[i].email + "</td>";
                             mytab = mytab + "<td>" + data[i].tweet + "</td>";
-                            mytab = mytab + "<td>" + time + "</td>";            
+                            mytab = mytab + "<td>" + time + "</td>";  
+                            
+                            mytab = mytab + "<td><button id='likeme" + i + "'  onclick=likeMe('" + data[i].uid + "','" + data[i].uk + "'," + i + ")>" + data[i].likes + "</button></td>";
+                            
                         } 
-                            mytab = mytab + "</tr>";  
+                        mytab = mytab + "</tr>"; 
                     }
                     mytab = mytab + "</table>"
                     var mytdiv = document.getElementById("mytweets");
@@ -251,6 +286,7 @@
                     document.getElementById("loader").style.display = "none";
                     document.getElementById("mytweets").style.display = "block";
 
+                }); // likes
                 }); // end user database callback function
             }); // end tweets database callback 
         } // end function
