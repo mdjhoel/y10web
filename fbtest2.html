@@ -1,0 +1,363 @@
+
+<html>
+
+    <script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+    <style>
+        
+        .danger {
+            background-color: #ffdddd;
+            border-left: 6px solid #f44336;
+            padding: 5px;
+            font-family: sans-serif;
+            margin: 5px;
+        }
+        
+        tr:hover {background-color: #f5f5f5;}
+        th, td {
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .topnav {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        /* Style the links inside the navigation bar */
+        .topnav a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        /* Change the color of links on hover */
+        .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        /* Add a color to the active/current link */
+        .topnav a.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .avatar {
+              vertical-align: middle;
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+        }
+        
+        #loader {
+              position: absolute;
+              top: 75%;
+              left: 50%;
+              z-index: 1;
+              width: 150px;
+              height: 150px;
+              margin: -75px 0 0 -75px;
+              border: 16px solid #f3f3f3;
+              border-radius: 50%;
+              border-top: 16px solid #3498db;
+              width: 120px;
+              height: 120px;
+              -webkit-animation: spin 2s linear infinite;
+              animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+          0% { -webkit-transform: rotate(0deg); }
+          100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        /* Add animation to "page content" */
+        .animate-bottom {
+          position: relative;
+          -webkit-animation-name: animatebottom;
+          -webkit-animation-duration: 1s;
+          animation-name: animatebottom;
+          animation-duration: 1s
+        }
+
+        @-webkit-keyframes animatebottom {
+          from { bottom:-100px; opacity:0 } 
+          to { bottom:0px; opacity:1 }
+        }
+
+        @keyframes animatebottom { 
+          from{ bottom:-100px; opacity:0 } 
+          to{ bottom:0; opacity:1 }
+        }
+
+        #mytweets {
+          display: none;
+          text-align: center;
+        }
+        
+        
+        input[type="file"]{
+            -webkit-appearance: none;
+            text-align: left;
+            -webkit-rtl-ordering:  left;
+        }
+        
+        input[type="file"]::-webkit-file-upload-button{
+           -webkit-appearance: none;
+           float: right;
+           margin: 0 0 0 10px;
+           background-color: aquamarine;
+        }
+    
+    </style>
+    
+    <script>
+        
+        // Initialize Firebase
+       var config = {
+            apiKey: "AIzaSyARoyVh6JwIVwXEdEHTQzrk7_BoKYk1Y6k",
+            authDomain: "test-80bb8.firebaseapp.com",
+            databaseURL: "https://test-80bb8.firebaseio.com",
+            projectId: "test-80bb8",
+            storageBucket: "test-80bb8.appspot.com",
+            messagingSenderId: "754834905642"
+        };
+        firebase.initializeApp(config);
+                
+        // Check to see if you are logged in
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user == null) {
+                alert("Not logged in.");
+                document.getElementById("loader").style.display = "none"; // no loading
+                return;
+            } else {
+                userId = user.uid;
+                name = user.displayName;
+                imageUrl = user.photoURL;
+                email = user.email;
+                
+                // write data to document
+                //mydiv = document.getElementById("mydata");
+                
+                // draw current user photo
+                myphotodiv = document.getElementById("myphoto");
+                myphotodiv.innerHTML = "<img src='" + imageUrl + "' class='avatar'/>";
+
+                // go to firebase database and draw tweets on page
+                updatetweets2();
+                
+            } // end user null check
+        }); // end check auth state
+        
+        function encodeImageFileAsURL() {
+
+            var filesSelected = document.getElementById("inputFileToLoad").files;
+            if (filesSelected.length > 0) {
+                var fileToLoad = filesSelected[0];
+                var fileReader = new FileReader();
+                fileReader.onload = function(fileLoadedEvent) {
+                    var srcData = fileLoadedEvent.target.result; // <--- data: base64
+                    //var newImage = document.createElement('img');
+                    //newImage.src = srcData;
+                    //document.getElementById("imgTest").innerHTML = newImage.outerHTML;
+                    document.getElementById("imgTest").innerHTML = srcData;
+                    //console.log("Converted Base64 version is: " + document.getElementById("imgTest").innerHTML);
+                    console.log(srcData);
+                }
+                fileReader.readAsDataURL(fileToLoad);
+            }
+        } // end function
+        
+        // write user data
+        function writeUserData(userId, name, email, imageUrl) {
+            firebase.database().ref('users/' + userId).once('value',    function(snapshot) {
+                 if (!snapshot.exists()) {
+                    firebase.database().ref('users/' + userId).set({
+                        username: name,
+                        email: email,
+                        profile_picture : imageUrl
+                    }); 
+                 }                                      
+            });
+        }
+        
+        function updatetweets2() {
+            
+            // grab all tweets
+            const query = firebase.database().ref('/tweets')
+            query.once('value', function(snapshot) {
+                // grab all users
+                const userquery = firebase.database().ref('/users')
+                userquery.once('value', function(usersnap) {            
+                    
+                    // put user data in a variable for use later
+                    var users = usersnap.val(); 
+                    
+                    // create empty array to place new combined object array, that will be sorted
+                    var children = [];
+                    //var mybio = "";
+                    
+                    // loop through all uids for tweets
+                    snapshot.forEach(function(child) {
+                        var uid_valarray = Object.values(child.val());
+                        // loop through unique ids for users for tweets
+                        for (record = 0; record<uid_valarray.length; record++) {  
+                            
+                            var user = users[child.key]; // get correct user info from users object
+                            // push new object to new array 'children'
+                            //if (child.key == userId) { mybio = user.bio; }
+                            children.push({ "uid": child.key, "username": user.username, "email": user.email, "profile_picture": user.profile_picture, "time": uid_valarray[record].time, "tweet": uid_valarray[record].tweet, "img": uid_valarray[record].img}); 
+                        }
+                    });
+                    // sort the data based on property and asc or desc
+                    var data = children.sort(compareValues('tweet','desc'));
+                    
+                    
+                    // build the table
+                    var mytab = "<table>";
+                    for (var i in data) {
+                        mytab = mytab + "<tr>";
+                        var date = new Date(data[i].time);
+                        var time = date.toString();
+                        if (data[i].img != "") {
+                            mytab = mytab + "<td><img src='" + data[i].profile_picture + "' class='avatar'></td>";
+                            mytab = mytab + "<td>" + data[i].email + "</td>";
+                            mytab = mytab + "<td>" + data[i].tweet + "</td>";
+                            mytab = mytab + "<td>" + time + "<br><img src='" + data[i].img + "' class='avatar'></td>";
+                        } else {
+                            mytab = mytab + "<td><img src='" + data[i].profile_picture + "' class='avatar'></td>";
+                            mytab = mytab + "<td>" + data[i].email + "</td>";
+                            mytab = mytab + "<td>" + data[i].tweet + "</td>";
+                            mytab = mytab + "<td>" + time + "</td>";            
+                        } 
+                            mytab = mytab + "</tr>";  
+                    }
+                    mytab = mytab + "</table>"
+                    var mytdiv = document.getElementById("mytweets");
+                    mytdiv.innerHTML = mytab;
+                    
+                    //document.getElementById("mybio").innerHTML = mybio;
+                    
+                    // turn off loader and turn on tweets
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("mytweets").style.display = "block";
+
+                }); // end user database callback function
+            }); // end tweets database callback 
+        } // end function
+        
+        // write tweets to firebase
+        function tweet() {
+            
+            var twitdoc = document.getElementById("twit");
+            var twitimg = document.getElementById("imgTest");
+            var nameValue = twitdoc.value;
+            var imgValue = twitimg.innerHTML;
+            var js_time = Date.now();
+            var tweetid = firebase.database().ref('tweets/' + userId + "/").push({tweet: nameValue, time: js_time, img: imgValue});
+            twitdoc.value = "";
+            writeUserData(userId, name, email, imageUrl);
+            console.log("tweet written")
+            
+            // update the page with new tweet
+            updatetweets2();
+            
+            // The unique key stored in tweetid is based on a timestamp, so list items will automatically be ordered chronologically. Because Firebase generates a unique key for each tweet, no write conflicts will occur if multiple users add a post at the same time. https://firebase.google.com/docs/database/admin/save-data
+            
+        }
+        
+        function signin() {
+            console.log("Signing in");
+            var provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithRedirect(provider).then(function(result) { 
+                window.location.replace("fbtest.html");
+            });
+        }
+        
+        function signout() {
+            console.log("Signing out");
+            firebase.auth().signOut().then(function() {
+            });
+        }
+        
+        function updatebio() {
+            mybio = document.getElementById("bio").value;
+            firebase.database().ref('users/' + userId).set({
+                        username: name,
+                        email: email,
+                        profile_picture : imageUrl,
+                        bio: mybio
+            }); 
+            document.getElementById("mybio").innerHTML = mybio;
+        }
+        
+        function compareValues(key, order='asc') {
+            return function(a, b) {    
+                if(!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+  	                 return 0; 
+                }
+                const varA = (typeof a[key] === 'string') ? 
+                    a[key].toUpperCase() : a[key];
+                const varB = (typeof b[key] === 'string') ? 
+                    b[key].toUpperCase() : b[key];
+      
+                let comparison = 0;
+                if (varA > varB) {
+                    comparison = 1;
+                } else if (varA < varB) {
+                    comparison = -1;
+                }
+                return ((order == 'desc') ? 
+                    (comparison * -1) : comparison
+                );
+            };
+        }
+
+    </script>
+
+    <body>
+        <!-- nav bar from w3schools -->
+        <div class="topnav">
+            <a class="active" href="#home">Home</a>
+            <a href="#contact">Contact</a>
+            <a href="#about">About</a>
+            <div id="myphoto" style="float: right;"></div>
+            <button onclick="signin()">Sign in</button>
+            <button onclick="signout()">Sign out</button>
+        </div>
+        
+        <!--<div id="mybio"></div>-->
+        
+        <div class="danger">
+            <h4>How to steal this code ...</h4>
+            <p>Step 1: delete your existing Firebase Realtime database</p>
+            <p><a href="fbtest.json" target="_target">Step 2: replace JSON Firebase rules for database</a></p>
+            <p>Step 3: view source and paste to new .html file and save to local server folder</p>
+        </div>
+    
+        <form>
+            Tweet:<br>
+            <textarea id="twit" type="text" name="thetweet" cols="100" rows="4"></textarea><br>
+            <!--<textarea id="bio" type="text" name="thetweet" cols="100" rows="4"></textarea>-->
+        </form> 
+        <button type="button" onclick="tweet()">Submit</button>
+        <!-- <button type="button" onclick="updatebio()">Bio</button>-->
+    
+        <br><input id="inputFileToLoad" type="file" onchange="encodeImageFileAsURL();" />
+        <div id="imgTest" style="display:none;"></div>
+        
+        <div id="loader"></div>
+        <div id="mytweets" style="display:none;" class="animate-bottom"></div>
+        <div id="mydata"></div>
+   
+    </body>
+</html>
