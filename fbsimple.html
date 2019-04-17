@@ -1,0 +1,99 @@
+<html>
+
+    <!-- HERE IS YOUR HTML TO SET UP YOUR PAGE -->
+    <head>
+        <script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+    </head>
+    <body>
+            <h1 id="uid"></h1>
+            <p>This app shows basics of Firebase with Javascript. Inspect/console to see info.</p>
+            <ol>
+                <li>new firebase project called basic</li>
+                <li>enable google authenication</li>
+                <li>create realtime database in test mode</li>
+                <li>get config from project settings/web</li>
+                <li>copy this code - right click view source - paste to editor</li>
+                <li>save index.html to a folder</li>
+                <li>terminal, cd to folder and invoke local server</li>
+                <li>python -m SimpleHTTPServer</li>
+                <li>try reading/writing to/from different nodes in firebase</li>
+            </ol>
+            <button onclick="signin()">Sign in</button>
+            <button onclick="signout()">Sign out</button>
+            <button onclick="getData()">Get data</button>
+            <button onclick="setData()">Set data</button>
+            <button onclick="pushData()">Push data</button>
+    </body>
+    
+    <!-- HERE IS THE JAVASCRIPT TO CONNECT TO YOUR FIREBASE -->
+    <script>
+        
+        // Initialize Firebase
+         var config = {
+            apiKey: "AIzaSyDv0orEi7TxqASf1XgcTmpH2k8LrqbIK50",
+            authDomain: "basic-a7470.firebaseapp.com",
+            databaseURL: "https://basic-a7470.firebaseio.com",
+            projectId: "basic-a7470",
+            storageBucket: "basic-a7470.appspot.com",
+            messagingSenderId: "67490622115"
+          };
+        firebase.initializeApp(config);
+                
+        // Check to see if you are logged in
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user == null) {
+                document.getElementById("uid").innerHTML = "not logged in";
+                return;
+            } else {
+                userId = user.uid;
+                document.getElementById("uid").innerHTML = userId;
+                
+            } // end user null check
+        }); // end check auth state
+        
+       // HERE IS THE FUNCTION TO SHOW HOW TO GET USER DATA
+       function getData() {
+           var userId = document.getElementById("uid").innerHTML;
+           firebase.database().ref('/tweets/' + userId).once('value', function(snapshot) {
+               console.log(snapshot);
+               console.log(snapshot.val());
+               alert("check your console to see what is returned by the snapshot object and the val()");
+           });
+       }
+       
+       // HERE IS THE FUNCTION TO SHOW HOW TO SET/OVERWRITE USER DATA
+       function setData() {
+           var userId = document.getElementById("uid").innerHTML;
+           var js_time = Date.now();
+           firebase.database().ref('/tweets/' + userId).set({tweet:"this is a test", time: js_time});
+           alert("check your Firebase console to see if your user record has been over-written");  
+       }
+         
+        // HERE IS THE FUNCTION TO SHOW HOW TO PUSH/ADD NEW USER DATA TO EXISTING DATABASE
+        function pushData() {
+            var userId = document.getElementById("uid").innerHTML;
+            var js_time = Date.now();
+            var tweetid = firebase.database().ref('tweets/' + userId + "/").push({tweet: "test", time: js_time});
+            alert(tweetid  + " - check Firebase console to see if updates have been written");
+        }
+        
+        function signin() {
+            console.log("Signing in");
+            var provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithRedirect(provider).then(function(result) { 
+                window.location.replace("fbtest.html");
+            });
+        }
+        
+        function signout() {
+            console.log("Signing out");
+            firebase.auth().signOut().then(function() {
+            });
+        }
+        
+
+    </script>
+
+   
+</html>
