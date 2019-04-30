@@ -1,5 +1,4 @@
 <html>
-
     <!-- HERE IS YOUR HTML TO SET UP YOUR PAGE -->
     <head>
         <script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
@@ -21,9 +20,9 @@
                 <li><a href="https://youtu.be/OgL070gjZkI" target="_blank">Explanatory video</a></li>
             </ol>
             <button onclick="signin()">Sign in</button>
-            <button onclick="signout()">Sign out</button>
             <button onclick="getData()">Get data</button>
             <button onclick="setData()">Set data</button>
+            <button onclick="updateData()">Update data</button>
             <button onclick="pushData()">Push data</button>
     </body>
     
@@ -47,8 +46,8 @@
                 document.getElementById("uid").innerHTML = "not logged in";
                 return;
             } else {
-                userId = user.uid;
-                document.getElementById("uid").innerHTML = userId;
+                userId = user.uid; // you can also get .displayName, .photoURL, .email
+                document.getElementById("uid").innerHTML = userId; // display Google uid on page
                 
             } // end user null check
         }); // end check auth state
@@ -65,29 +64,27 @@
        function setData() {
            var userId = document.getElementById("uid").innerHTML;
            var js_time = Date.now();
-           firebase.database().ref('/tweets/' + userId).set({tweet:"this is a test", time: js_time});
+           firebase.database().ref('/tweets/' + userId).set({tweet:"Set over-writes", time: js_time}); 
+       }
+        
+       // HERE IS THE FUNCTION TO SHOW HOW TO SET/OVERWRITE USER DATA
+       function updateData() {
+           var userId = document.getElementById("uid").innerHTML;
+           firebase.database().ref('/tweets/' + userId).update({tweet:"Update replaces data, but will leave non replaced data as is"}); 
        }
          
         // HERE IS THE FUNCTION TO SHOW HOW TO PUSH/ADD NEW USER DATA TO EXISTING DATABASE
         function pushData() {
             var userId = document.getElementById("uid").innerHTML;
             var js_time = Date.now();
-            var tweetid = firebase.database().ref('tweets/' + userId + "/").push({tweet: "test", time: js_time});
+            var tweetid = firebase.database().ref('tweets/' + userId + "/").push({tweet: "push adds to the nodes, a unique key/timestamp is also added", time: js_time});
         }
         
         function signin() {
-            console.log("Signing in");
             var provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithRedirect(provider).then(function(result) { 
                 window.location.replace("fbtest.html");
             });
         }
-        
-        function signout() {
-            console.log("Signing out");
-            firebase.auth().signOut().then(function() {
-            });
-        }
-        
     </script>
 </html>
