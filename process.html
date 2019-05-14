@@ -1,0 +1,45 @@
+<html>
+    
+    <h1>Example code to help process JavaScript Arrays (Inspect > Console to see)</h1>
+    
+    <script>
+    
+        // A JavaScript Object with Objects
+        data = { "-Leq8XKw677Gj6yNc3_w": {time: 1557834114441, tweet: "first"}, "-Lyg8XKw677Gj6yNc4_y": {time: 1557834114501, tweet: "second"}}
+        
+        // How to drill down into Object data and retreive data
+        console.log("How to get data from Object");
+        console.log(data["-Leq8XKw677Gj6yNc3_w"]);
+        console.log(data["-Leq8XKw677Gj6yNc3_w"].tweet);
+
+        // How to get all keys and values
+        console.log("How to get key and value arrays from Object");
+        console.log(Object.keys(data));
+        console.log(Object.values(data));
+
+        // Loop through Object
+        console.log("Loop through Object");
+        for (key of Object.keys(data)) {
+            console.log(key);
+            console.log(data[key]);
+            console.log(data[key].tweet);
+        }
+        
+        // Complex multi dimensional Object (user id, then pushed tweets inside)
+        complexdata = {dF4c1pfrurRYMJKn3R7OGSYU123:{"-Leq8XKw677Gj6yNc3_w": {time: 1557834114441, tweet: "first"}, "-Lyg8XKw677Gj6yNc4_y": {time: 1557834114501, tweet: "second"}}};
+        
+        // Loop through complex Object
+        console.log("Loop through complex Object");
+        for (key2 of Object.keys(complexdata)) {
+            console.log(key2);
+            console.log(complexdata[key2]);
+            for (ukey of Object.keys(complexdata[key2])) {
+                console.log(ukey);
+                console.log(complexdata[key2][ukey]);
+            }
+        }
+        
+        
+    </script>
+    
+</html>
