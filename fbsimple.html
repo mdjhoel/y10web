@@ -4,6 +4,10 @@
     <head>
         <!-- HERE ARE YOUR FIREBASE and GOOGLE AUTHENICATION IMPORTS -->
         <script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
+        
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/7.2.1/firebase-app.js"></script>
+        
         <script src="https://apis.google.com/js/platform.js" async defer></script>
     </head>
     <body >
@@ -33,6 +37,20 @@
     
     <!-- HERE IS THE JAVASCRIPT TO CONNECT TO YOUR FIREBASE -->
     <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyAgxg8C3PTR-XOzOZdpyMGQVq9IBugOA3g",
+        authDomain: "basic-d3556.firebaseapp.com",
+        databaseURL: "https://basic-d3556.firebaseio.com",
+        projectId: "basic-d3556",
+        storageBucket: "basic-d3556.appspot.com",
+        messagingSenderId: "1010614760359",
+        appId: "1:1010614760359:web:818dfcc2f8be51401c7c82",
+        measurementId: "G-62WRTET4D4"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
         
         // Initialize Firebase
       var firebaseConfig = {
