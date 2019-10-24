@@ -4,9 +4,7 @@
     <head>        
         <!-- The core Firebase JS SDK is always required and must be listed first -->
         <script src="https://www.gstatic.com/firebasejs/7.2.1/firebase-app.js"></script>
-        
         <script src="https://www.gstatic.com/firebasejs/7.2.1/firebase-analytics.js"></script>
-        
         <script src="https://apis.google.com/js/platform.js" async defer></script>
     </head>
     <body >
@@ -36,36 +34,21 @@
     
     <!-- HERE IS THE JAVASCRIPT TO CONNECT TO YOUR FIREBASE -->
     <script>
-      // Your web app's Firebase configuration
-      var firebaseConfig = {
-        apiKey: "AIzaSyAgxg8C3PTR-XOzOZdpyMGQVq9IBugOA3g",
-        authDomain: "basic-d3556.firebaseapp.com",
-        databaseURL: "https://basic-d3556.firebaseio.com",
-        projectId: "basic-d3556",
-        storageBucket: "basic-d3556.appspot.com",
-        messagingSenderId: "1010614760359",
-        appId: "1:1010614760359:web:818dfcc2f8be51401c7c82",
-        measurementId: "G-62WRTET4D4"
-      };
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      firebase.analytics();
-        
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyAgxg8C3PTR-XOzOZdpyMGQVq9IBugOA3g",
+            authDomain: "basic-d3556.firebaseapp.com",
+            databaseURL: "https://basic-d3556.firebaseio.com",
+            projectId: "basic-d3556",
+            storageBucket: "basic-d3556.appspot.com",
+            messagingSenderId: "1010614760359",
+            appId: "1:1010614760359:web:818dfcc2f8be51401c7c82",
+            measurementId: "G-62WRTET4D4"
+        };
         // Initialize Firebase
-      var firebaseConfig = {
-        apiKey: "AIzaSyAgxg8C3PTR-XOzOZdpyMGQVq9IBugOA3g",
-        authDomain: "basic-d3556.firebaseapp.com",
-        databaseURL: "https://basic-d3556.firebaseio.com",
-        projectId: "basic-d3556",
-        storageBucket: "basic-d3556.appspot.com",
-        messagingSenderId: "1010614760359",
-        appId: "1:1010614760359:web:818dfcc2f8be51401c7c82",
-        measurementId: "G-62WRTET4D4"
-      };
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      firebase.analytics();
-                
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+               
         // Check to see if you are logged in
         firebase.auth().onAuthStateChanged(function(user) {
             if (user == null) {
