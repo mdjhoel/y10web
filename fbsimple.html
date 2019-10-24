@@ -35,17 +35,19 @@
     <script>
         
         // Initialize Firebase
-         var config = {
-            apiKey: "AIzaSyAgxg8C3PTR-XOzOZdpyMGQVq9IBugOA3g",
-            authDomain: "basic-d3556.firebaseapp.com",
-            databaseURL: "https://basic-d3556.firebaseio.com",
-            projectId: "basic-d3556",
-            storageBucket: "basic-d3556.appspot.com",
-            messagingSenderId: "1010614760359",
-            appId: "1:1010614760359:web:818dfcc2f8be51401c7c82",
-            measurementId: "G-62WRTET4D4"
-          };
-        firebase.initializeApp(config);
+      var firebaseConfig = {
+        apiKey: "AIzaSyAgxg8C3PTR-XOzOZdpyMGQVq9IBugOA3g",
+        authDomain: "basic-d3556.firebaseapp.com",
+        databaseURL: "https://basic-d3556.firebaseio.com",
+        projectId: "basic-d3556",
+        storageBucket: "basic-d3556.appspot.com",
+        messagingSenderId: "1010614760359",
+        appId: "1:1010614760359:web:818dfcc2f8be51401c7c82",
+        measurementId: "G-62WRTET4D4"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
                 
         // Check to see if you are logged in
         firebase.auth().onAuthStateChanged(function(user) {
